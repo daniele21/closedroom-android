@@ -1,0 +1,45 @@
+name: Probe check
+
+on:
+  pull_request:
+    paths:
+      - "tools/probe/**"
+      - ".github/workflows/probe-check.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install pinned Android platform/build tools
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Shell syntax
+        run: |
+          bash -n tools/probe/build_probe.sh
+          bash -n tools/probe/doctor.sh
+          bash -n tools/probe/run_capture.sh
+          bash -n tools/probe/cleanup.sh
+
+      - name: Compile and dex probe
+        env:
+          ANDROID_SDK_ROOT: ${{ env.ANDROID_HOME }}
+        run: tools/probe/build_probe.sh
+
+      - name: Verify payload
+        run: |
+          test -s tools/probe/build/closedroom-probe.jar
+          jar tf tools/probe/build/closedroom-probe.jar | grep -Fx classes.dex
