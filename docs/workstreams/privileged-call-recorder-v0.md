@@ -55,9 +55,9 @@ G1 before adoption; G0/G-IPC before product code; no embedded ADB before G3.
 
 | ID | Work / owns | Depends on | Parallel | State |
 | --- | --- | --- | --- | --- |
-| WS-0a | minimum probe build/launch tooling | — | WS-1 | READY |
-| WS-1 | target experiment contract/evidence | — | WS-0a | READY |
-| WS-2 | own shell probe/debug script | WS-0a, WS-1 | no | BLOCKED |
+| WS-0a | minimum probe build/launch tooling | — | WS-1 | DONE |
+| WS-1 | target experiment contract/evidence | — | WS-0a | DONE |
+| WS-2 | own shell probe/debug script | WS-0a, WS-1 | no | READY |
 | WS-3 | physical experiments/G1 | WS-2 | no | BLOCKED |
 | WS-0b | full adoption/Android skeleton/G0 | G1 | no | BLOCKED |
 | WS-6a | IPC/FD spike/shared contract/G-IPC | G0 | no | BLOCKED |
@@ -151,7 +151,7 @@ Journey: Developer Options/Wireless debugging -> own-device pairing/code/key -> 
 
 ## Resume and completion
 
-Next: WS-0a + WS-1. All target/audio/IPC gates remain unexecuted.
+Next: WS-2 on the target phone. WS-0a/WS-1 are implemented; probe compile/dex validation passed on exact head `668de478d2b2fc76da9d799e4ca8f1035995a19f` in Probe check run `36975844131`. G1/audio/IPC gates remain unexecuted.
 
 Recheck head/base. Unresolved: target/routes/source/discovery/auth/FD. Embedded ADB deferred; references are hypotheses.
 
