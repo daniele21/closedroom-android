@@ -22,10 +22,13 @@ experiment.
 ## Prerequisites
 
 - JDK with `javac` and `jar`.
-- Android SDK with at least one installed platform and Build Tools containing `d8`.
+- Android SDK platform **35** and Build Tools **35.0.0** by default.
 - `ANDROID_SDK_ROOT` or `ANDROID_HOME`.
 - `adb` authorized for exactly the target phone, or set `ANDROID_SERIAL`.
 - Developer options/USB debugging or another ordinary host-ADB connection.
+
+The compile SDK pins can be overridden explicitly with `ANDROID_PLATFORM_API` and
+`ANDROID_BUILD_TOOLS_VERSION`, but do not change them merely to obtain a green run.
 
 Run:
 
@@ -52,6 +55,10 @@ During the 60 seconds:
 3. local speaker says a short fixed phrase;
 4. remote speaker answers with a different short fixed phrase;
 5. alternate speech and short silences so the two sides are distinguishable.
+
+The host wrapper applies a bounded deadline and attempts to kill the specific probe process if ADB
+or the capture blocks. A failed/interrupted run removes its generated WAV. A successful WAV remains
+on-device for inspection.
 
 After capture, inspect the WAV **on the phone**. Speakerphone acoustic leakage is not proof of direct
 remote capture; earpiece is the primary discriminator.
@@ -113,6 +120,10 @@ Missing physical-device access is pending evidence, not a failed feasibility res
 
 ## Reference boundary
 
-The shell-context/audio-capture approach is informed by Apache-2.0 Android/scrcpy patterns. GPL
-applications such as ShizuCallRecorder and CallVault remain behavioral/architecture references only;
-do not copy their implementation into this probe.
+The shell-context/audio-capture approach is informed by Android framework behavior and
+`Genymobile/scrcpy` at commit
+`19c1261d2e2cbf2b5e6a71a8b64cc1dd3ede06ac` (Apache-2.0), especially its shell-side direct-audio
+capture and `app_process` model.
+
+GPL applications such as ShizuCallRecorder and CallVault remain behavioral/architecture references
+only; do not copy their implementation into this probe.
