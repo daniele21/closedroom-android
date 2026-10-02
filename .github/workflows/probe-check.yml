@@ -86,11 +86,7 @@ jobs:
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
           script: |
-            set -eu
             adb shell id -u | tr -d '\r' | grep -Fx 2000
             adb push tools/probe/build/closedroom-probe.jar /data/local/tmp/closedroom-probe.jar >/dev/null
-            INFO="$(adb shell env CLASSPATH=/data/local/tmp/closedroom-probe.jar app_process / com.closedroom.probe.CallAudioProbe info | tr -d '\r')"
-            echo "$INFO"
-            echo "$INFO" | grep -F "CRPROBE result=info"
-            echo "$INFO" | grep -F "uid=2000"
+            INFO="$(adb shell env CLASSPATH=/data/local/tmp/closedroom-probe.jar app_process / com.closedroom.probe.CallAudioProbe info | tr -d '\r')"; echo "$INFO"; echo "$INFO" | grep -F "CRPROBE result=info"; echo "$INFO" | grep -F "uid=2000"
             adb shell rm -f /data/local/tmp/closedroom-probe.jar
