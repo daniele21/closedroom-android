@@ -52,7 +52,7 @@ prompt_enum() {
   shift
   local answer
   while true; do
-    printf "%s" "$prompt"
+    printf "%s" "$prompt" >&2
     IFS= read -r answer
     for allowed in "$@"; do
       if [[ "$answer" == "$allowed" ]]; then
