@@ -44,6 +44,14 @@ jobs:
           bash -n tools/probe/run_g1_session.sh
           bash -n tools/probe/cleanup.sh
 
+      - name: Validate G1 session configuration
+        run: |
+          G1_VALIDATE_ONLY=1 tools/probe/run_g1_session.sh | grep -F "g1_config=ok"
+          if G1_VALIDATE_ONLY=1 G1_ROUTE=invalid tools/probe/run_g1_session.sh >/dev/null 2>&1; then
+            echo "invalid route unexpectedly accepted" >&2
+            exit 1
+          fi
+
       - name: Compile and dex probe
         env:
           ANDROID_SDK_ROOT: ${{ env.ANDROID_HOME }}
