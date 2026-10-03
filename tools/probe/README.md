@@ -40,6 +40,26 @@ tools/probe/build_probe.sh
 `doctor.sh` prints only technical device/build metadata. Do not paste phone numbers, call audio,
 pairing codes or other private payloads into issues/logs.
 
+## Repeatable G1 session
+
+For the primary physical gate, prefer the session runner over invoking individual captures manually:
+
+```bash
+G1_ROUTE=earpiece \
+G1_CARRIER_MODE=unknown \
+G1_SCREEN_STATE=foreground \
+tools/probe/run_g1_session.sh
+```
+
+It performs doctor/build/cleanup once, runs the required three 60-second captures, pauses after each
+capture for **on-device** listening, records only human verdicts + technical device metadata, and
+verifies cleanup before the next run. Generated evidence is kept under
+`tools/probe/evidence/local/` and ignored by Git.
+
+The script deliberately cannot decide intelligibility itself because moving call audio to the host
+would violate the diagnostic privacy boundary. The only manual inputs are the call readiness and
+local/remote intelligibility/leakage verdicts.
+
 ## G1 run
 
 Start with the direct combined call source:

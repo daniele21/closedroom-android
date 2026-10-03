@@ -58,7 +58,7 @@ G1 before adoption; G0/G-IPC before product code; no embedded ADB before G3.
 | WS-0a | minimum probe build/launch tooling | — | WS-1 | DONE |
 | WS-1 | target experiment contract/evidence | — | WS-0a | DONE |
 | WS-2 | own shell probe/debug script | WS-0a, WS-1 | no | DONE |
-| WS-3 | physical experiments/G1 | WS-2 | no | READY |
+| WS-3 | physical experiments/G1 | WS-2 | no | ACTIVE |
 | WS-0b | full adoption/Android skeleton/G0 | G1 | no | BLOCKED |
 | WS-6a | IPC/FD spike/shared contract/G-IPC | G0 | no | BLOCKED |
 | WS-4 | daemon/capture adapter/G2 | G-IPC | WS-5 | BLOCKED |
@@ -151,7 +151,7 @@ Journey: Developer Options/Wireless debugging -> own-device pairing/code/key -> 
 
 ## Resume and completion
 
-Next: WS-3 / G1 on the target phone. WS-0a/WS-1/WS-2 are implemented. Probe compile/dex plus Android 15 emulator `adb push -> app_process -> info` passed for source head `bf749fcd15fe7160a47540035c0d23ec0475bcde` in Probe check run `36976990799`; observed `uid=2000`, API 35 and probe version 0.1.0. Real carrier-call RX+TX, G1, adoption and IPC gates remain unexecuted.
+Next: execute the prepared WS-3 / G1 session on the target phone. WS-0a/WS-1/WS-2 are implemented; WS-3 host orchestration/evidence capture is implemented and ACTIVE. Probe compile/dex plus Android 15 emulator `adb push -> app_process -> info` passed for source head `bf749fcd15fe7160a47540035c0d23ec0475bcde` in Probe check run `36976990799`; observed `uid=2000`, API 35 and probe version 0.1.0. Real carrier-call RX+TX, G1, adoption and IPC gates remain unexecuted.
 
 Recheck head/base. Unresolved: target/routes/source/discovery/auth/FD. Embedded ADB deferred; references are hypotheses.
 

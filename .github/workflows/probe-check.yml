@@ -41,6 +41,7 @@ jobs:
           bash -n tools/probe/build_probe.sh
           bash -n tools/probe/doctor.sh
           bash -n tools/probe/run_capture.sh
+          bash -n tools/probe/run_g1_session.sh
           bash -n tools/probe/cleanup.sh
 
       - name: Compile and dex probe
