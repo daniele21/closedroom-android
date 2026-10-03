@@ -1,0 +1,105 @@
+name: Probe check
+
+on:
+  pull_request:
+    paths:
+      - "tools/probe/**"
+      - ".github/workflows/probe-check.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: probe-check-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Verify runner Android SDK
+        run: |
+          test -n "$ANDROID_HOME"
+          test -x "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --version
+
+      - name: Install pinned Android platform/build tools
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"             "platforms;android-35"             "build-tools;35.0.0"
+
+      - name: Shell syntax
+        run: |
+          bash -n tools/probe/build_probe.sh
+          bash -n tools/probe/doctor.sh
+          bash -n tools/probe/run_capture.sh
+          bash -n tools/probe/run_g1_session.sh
+          bash -n tools/probe/cleanup.sh
+
+      - name: Validate G1 session configuration
+        run: |
+          G1_VALIDATE_ONLY=1 tools/probe/run_g1_session.sh | grep -F "g1_config=ok"
+          if G1_VALIDATE_ONLY=1 G1_ROUTE=invalid tools/probe/run_g1_session.sh >/dev/null 2>&1; then
+            echo "invalid route unexpectedly accepted" >&2
+            exit 1
+          fi
+
+      - name: Compile and dex probe
+        env:
+          ANDROID_SDK_ROOT: ${{ env.ANDROID_HOME }}
+        run: tools/probe/build_probe.sh
+
+      - name: Verify payload
+        run: |
+          test -s tools/probe/build/closedroom-probe.jar
+          jar tf tools/probe/build/closedroom-probe.jar | grep -Fx classes.dex
+
+  emulator-shell-smoke:
+    needs: build-probe
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install probe build prerequisites
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"             "platforms;android-35"             "build-tools;35.0.0"
+
+      - name: Build probe
+        env:
+          ANDROID_SDK_ROOT: ${{ env.ANDROID_HOME }}
+        run: tools/probe/build_probe.sh
+
+      - name: Allow emulator KVM access
+        run: |
+          if [[ -e /dev/kvm ]]; then
+            sudo chmod 666 /dev/kvm
+          fi
+
+      - name: Launch shell payload on Android 15 emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          script: |
+            adb shell id -u | tr -d '\r' | grep -Fx 2000
+            adb push tools/probe/build/closedroom-probe.jar /data/local/tmp/closedroom-probe.jar >/dev/null
+            INFO="$(adb shell env CLASSPATH=/data/local/tmp/closedroom-probe.jar app_process / com.closedroom.probe.CallAudioProbe info | tr -d '\r')"; echo "$INFO"; echo "$INFO" | grep -F "CRPROBE result=info"; echo "$INFO" | grep -F "uid=2000"
+            adb shell rm -f /data/local/tmp/closedroom-probe.jar
