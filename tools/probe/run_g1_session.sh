@@ -124,7 +124,7 @@ for ((run=1; run<=RUNS; run++)); do
 
   CAPTURE_LOG="$(mktemp -t closedroom-g1-capture.XXXXXX)"
   set +e
-  "$PROBE_DIR/run_capture.sh" "$SOURCE" "$DURATION_SECONDS" "$CHANNELS" | tee "$CAPTURE_LOG"
+  "$PROBE_DIR/run_capture.sh" "$SOURCE" "$DURATION_SECONDS" "$CHANNELS" 2>&1 | tee "$CAPTURE_LOG"
   CAPTURE_STATUS=${PIPESTATUS[0]}
   set -e
 
