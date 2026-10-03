@@ -30,6 +30,11 @@ case "$SCREEN_STATE" in foreground|screen-off|background) ;; *) echo "error: G1_
   exit 2
 }
 
+if [[ "${G1_VALIDATE_ONLY:-0}" == "1" ]]; then
+  echo "g1_config=ok source=$SOURCE duration=$DURATION_SECONDS channels=$CHANNELS route=$ROUTE carrier_mode=$CARRIER_MODE screen_state=$SCREEN_STATE runs=$RUNS"
+  exit 0
+fi
+
 ADB="${ADB:-adb}"
 if [[ -n "${ANDROID_SERIAL:-}" ]]; then
   ADB_ARGS=(-s "$ANDROID_SERIAL")
